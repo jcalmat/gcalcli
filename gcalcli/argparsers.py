@@ -393,6 +393,9 @@ def get_argument_parser():
     _import.add_argument(
             '--dump', '-d', action='store_true',
             help='Print events and don\'t import')
+    _import.add_argument(
+            '--override', '-o', action='store_true',
+            help='Override event if it already exist based on its id')
 
     default_cmd = 'notify-send -u critical -i appointment-soon -a gcalcli %s'
     remind = sub.add_parser(

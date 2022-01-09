@@ -232,7 +232,7 @@ def main():
 
         elif parsed_args.command == 'import':
             gcal.ImportICS(
-                    parsed_args.verbose, parsed_args.dump,
+                    parsed_args.verbose, parsed_args.dump, parsed_args.override,
                     parsed_args.reminders, parsed_args.file
             )
 

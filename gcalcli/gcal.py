@@ -1108,6 +1108,13 @@ class GoogleCalendarInterface:
 
         return event_list
 
+    def _get_event(self, calendarId, eventId):
+        event = self._retry_with_backoff(
+            self.get_events().get(calendarId, eventId)
+        )
+
+        return event
+
     def _DeclinedEvent(self, event):
         if 'attendees' in event:
             attendees = [a for a in event['attendees']
@@ -1421,7 +1428,7 @@ class GoogleCalendarInterface:
         if not pid:
             os.execvp(cmd[0], cmd)
 
-    def ImportICS(self, verbose=False, dump=False, reminders=None,
+    def ImportICS(self, verbose=False, dump=False, override=False, reminders=None,
                   icsFile=None):
 
         def CreateEventFromVOBJ(ve):
@@ -1462,6 +1469,12 @@ class GoogleCalendarInterface:
                     print('Local End....%s' %
                           self._localize_datetime(ve.dtend.value)
                           )
+
+            if hasattr(ve, 'uid'):
+                if verbose:
+                    print('id:\n%s' % ve.uid.value)
+
+                event['id'] = ve.uid.value
 
             if hasattr(ve, 'rrule'):
                 if verbose:
@@ -1577,6 +1590,10 @@ class GoogleCalendarInterface:
 
                 if dump:
                     continue
+
+                if override and event['id']:
+                    if self._get_event(self.cals[0]['id'], event['id']):
+                        self.delete(self.cals[0]['id'], event['id'])
 
                 if not verbose:
                     new_event = self._retry_with_backoff(
